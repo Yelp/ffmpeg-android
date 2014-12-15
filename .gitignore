@@ -1,0 +1,3 @@
+ndk/
+*.tar.bz2
+build_ffmpeg.log
