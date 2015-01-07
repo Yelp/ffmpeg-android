@@ -79,10 +79,6 @@ if [ "$1" = "--init" ]; then
     mv libvorbis-1.3.4 libvorbis \
         >> ${LOG_FILE} 2>&1
 
-    printf "    downloading fdk\n"
-    (git clone --progress https://github.com/mstorsjo/fdk-aac.git libfdk) \
-        >> ${LOG_FILE} 2>&1
-
     printf "    downloading vpx\n"
     (git clone --progress http://git.chromium.org/webm/libvpx.git libvpx) \
         >> ${LOG_FILE} 2>&1
@@ -256,47 +252,6 @@ printf "    done\n    "
 ls ${DIR_SYSROOT}/lib | grep libvorbis.a
 unset CC CXX LD STRIP NM AR AS RANLIB
 # libvorbis.a
-
-# LIBFDK
-
-printf "LIBFDK\n"
-export LDFLAGS="-L${DIR_SYSROOT}/lib"
-export CPPFLAGS="-I${DIR_SYSROOT}/include"
-export CFLAGS="-I${DIR_SYSROOT}/include"
-export CC=${DIR_SYSROOT}/bin/${PREFIX}-gcc
-export CXX=${DIR_SYSROOT}/bin/${PREFIX}-g++
-export LD=${DIR_SYSROOT}/bin/${PREFIX}-ld
-export STRIP=${DIR_SYSROOT}/bin/${PREFIX}-strip
-export NM=${DIR_SYSROOT}/bin/${PREFIX}-nm
-export AR=${DIR_SYSROOT}/bin/${PREFIX}-ar
-export AS=${DIR_SYSROOT}/bin/${PREFIX}-as
-export RANLIB=${DIR_SYSROOT}/bin/${PREFIX}-ranlib
-cd ${DIR_NDK}/sources/libfdk \
-    >> ${LOG_FILE} 2>&1
-
-printf "    cleaning\n"
-make clean \
-    >> ${LOG_FILE} 2>&1 || true
-
-printf "    configuring\n"
-./autogen.sh \
-    >> ${LOG_FILE} 2>&1
-./configure --prefix=${DIR_SYSROOT} --host=${PREFIX} --with-sysroot=${DIR_SYSROOT} \
-    --disable-shared \
-    >> ${LOG_FILE} 2>&1
-
-printf "    building\n"
-make -j${NUM_JOBS} \
-    >> ${LOG_FILE} 2>&1
-
-printf "    installing\n"
-make install \
-    >> ${LOG_FILE} 2>&1
-
-printf "    done\n    "
-ls ${DIR_SYSROOT}/lib | grep libfdk-aac.a
-unset LDFLAGS CPPFLAGS CFLAGS CC CXX LD STRIP NM AR AS RANLIB
-# libfdk-aac.a
 
 # LIBVPX (done)
 
