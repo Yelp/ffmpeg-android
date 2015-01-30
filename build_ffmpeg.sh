@@ -120,7 +120,7 @@ fi
 # Determine the output directory. Put PIE executables in their own seperate path.
 # Also set whethere --enable-pic is passed to FFmpeg's configuration.
 if [[ $PIE_ENABLED ]]; then
-    ffmpegOutputDir=${DIR_NDK}/bin/pie/${CPU}
+    ffmpegOutputDir=${DIR_NDK}/bin/${CPU}/pie
     enablePic="--enable-pic"
 else
     ffmpegOutputDir=${DIR_NDK}/bin/${CPU}
