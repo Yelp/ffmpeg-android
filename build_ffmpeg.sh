@@ -24,11 +24,11 @@ fi
 LOG_FILE="$(pwd)/build_ffmpeg.log"
 printf "" > ${LOG_FILE}
 
-# INITIALIZE
+# Initialize ndk and toolchain.
 
 if [ "$1" = "--init" ]; then
 
-    # DOWNLOAD NDK
+    # Download ndk.
 
     printf "NDK\n"
 
@@ -52,7 +52,7 @@ if [ "$1" = "--init" ]; then
 
     printf "    done\n"
 
-    # DOWNLOAD SOURCES
+    # Download sources.
 
     printf "SOURCES\n"
     cd ${DIR_NDK}/sources \
@@ -98,8 +98,7 @@ if [ ! -d "${DIR_NDK}/sources/ffmpeg" ]; then
     exit 1
 fi
 
-# MAKE SURE ARCHITECTURE IS SPECIFIED
-
+# Verify input variables. PIE_FLAGS do not need to be set and are disabled by default.
 if [ ! -n "${NUM_JOBS}" ] || [ ! -n "${LEVEL}" ] || [ ! -n "${CPU}" ] ||
    [ ! -n "${PREFIX}" ] || [ ! -n "${TOOLCHAIN_PREFIX}" ] || [ ! -n "${LIBVPX_TARGET}" ]; then
 
@@ -117,8 +116,17 @@ if [ ! -n "${NUM_JOBS}" ] || [ ! -n "${LEVEL}" ] || [ ! -n "${CPU}" ] ||
     exit 1
 fi
 
-# TOOLCHAIN
+# Determine the output directory and put PIE executables in their own separate path.
+# Also set whether --enable-pic is passed to FFmpeg's configuration to generate PIE executables.
+if [[ $PIE_FLAGS ]]; then
+    ffmpegOutputDir=${DIR_NDK}/bin/${CPU}/pie
+    enablePic="--enable-pic"
+else
+    ffmpegOutputDir=${DIR_NDK}/bin/${CPU}
+    enablePic=""
+fi
 
+# Setup the android ndk toolchain to cross compile.
 DIR_SYSROOT=${DIR_NDK}/platforms/android-${LEVEL}/arch-${CPU}/usr
 
 if [ ! -d "${DIR_SYSROOT}/bin" ]; then
@@ -136,13 +144,11 @@ if [ ! -d "${DIR_SYSROOT}/bin" ]; then
     printf "    done ${DIR_SYSROOT}\n"
 fi
 
-# EXECUTABLES... EXECUTABLES EVERYWHERE
-
+# Make the executables executable.
 chmod -R u+x ${DIR_NDK} \
     >> ${LOG_FILE} 2>&1
 
-# YASM (done)
-
+# Build YASM.
 printf "YASM\n"
 cd ${DIR_NDK}/sources/yasm \
     >> ${LOG_FILE} 2>&1
@@ -173,11 +179,10 @@ make install \
 
 printf "    done\n    "
 ls ${DIR_SYSROOT}/lib | grep libyasm.a
-# libyasm.a
+# Done building libyasm.a.
 
 
-# LIBOGG (done)
-
+# Build libogg.
 printf "LIBOGG\n"
 export PATH=${ORIGINAL_PATH}:${DIR_SYSROOT}/bin
 export RANLIB=${DIR_SYSROOT}/bin/${PREFIX}-ranlib
@@ -213,12 +218,10 @@ printf "    done\n    "
 ls ${DIR_SYSROOT}/lib | grep libogg.a
 unset RANLIB
 export PATH=${ORIGINAL_PATH}
-# libogg.a
-# libogg.la
+# Done building libogg.a and libogg.la.
 
 
-# LIBVORBIS (done)
-
+# Build libvorbis.
 printf "LIBVORBIS\n"
 export CC=${DIR_SYSROOT}/bin/${PREFIX}-gcc
 export CXX=${DIR_SYSROOT}/bin/${PREFIX}-g++
@@ -251,10 +254,9 @@ make install \
 printf "    done\n    "
 ls ${DIR_SYSROOT}/lib | grep libvorbis.a
 unset CC CXX LD STRIP NM AR AS RANLIB
-# libvorbis.a
+# libvorbis.a done.
 
-# LIBVPX (done)
-
+# Build libvpx.
 printf "LIBVPX\n"
 export CROSS=${DIR_SYSROOT}/bin/${PREFIX}-
 cd ${DIR_NDK}/sources/libvpx \
@@ -295,11 +297,10 @@ make install \
 printf "    done\n    "
 ls ${DIR_SYSROOT}/lib | grep libvpx.a
 unset CROSS
-# libvpx.a
+# libvpx.a finished building.
 
 
-# FFMPEG (done)
-
+# Build FFmpeg.
 printf "FFMPEG\n"
 export PATH=${ORIGINAL_PATH}:${DIR_SYSROOT}/bin
 cd ${DIR_NDK}/sources/ffmpeg \
@@ -322,8 +323,9 @@ make clean \
 printf "    configuring\n"
 ./configure \
     --prefix=${DIR_SYSROOT} --arch=${CPU} --target-os=linux \
-    --extra-ldflags="-L${DIR_SYSROOT}/lib" \
-    --extra-cflags="-I${DIR_SYSROOT}/include" --extra-cxxflags="-I${DIR_SYSROOT}/include" \
+    --extra-ldflags="-L${DIR_SYSROOT}/lib ${PIE_FLAGS}" \
+    --extra-cflags="-I${DIR_SYSROOT}/include ${PIE_FLAGS}" \
+    --extra-cxxflags="-I${DIR_SYSROOT}/include ${PIE_FLAGS}" \
     --enable-cross-compile --cross-prefix=${PREFIX}- --sysroot=${DIR_SYSROOT} \
     --disable-shared --enable-static --enable-small \
     --disable-all --enable-ffmpeg \
@@ -338,6 +340,7 @@ printf "    configuring\n"
     --enable-encoder=libvorbis \
     --enable-encoder=libvpx_vp8 \
     --enable-muxer=webm \
+    $enablePic \
         >> ${LOG_FILE} 2>&1
 
 printf "    building\n"
@@ -352,10 +355,9 @@ printf "    done\n    "
 ls ${DIR_SYSROOT}/bin | grep ffmpeg
 export PATH=${ORIGINAL_PATH}
 
-# COPY EXECUTABLE
-
-mkdir -p ${DIR_NDK}/bin/${CPU} \
+# Copy executable to output directory.
+mkdir -p $ffmpegOutputDir \
     >> ${LOG_FILE} 2>&1
-cp ${DIR_SYSROOT}/bin/ffmpeg ${DIR_NDK}/bin/${CPU} \
+cp ${DIR_SYSROOT}/bin/ffmpeg $ffmpegOutputDir \
     >> ${LOG_FILE} 2>&1
-printf "Android ffmpeg executable in ${DIR_NDK}/bin/${CPU}\0"
+printf "Android ffmpeg executable in ${ffmpegOutputDir}/\n\0"
