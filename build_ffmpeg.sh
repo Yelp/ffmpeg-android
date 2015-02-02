@@ -98,8 +98,7 @@ if [ ! -d "${DIR_NDK}/sources/ffmpeg" ]; then
     exit 1
 fi
 
-# Make sure the variables are specified.
-# PIE_ENABLED does not need to be set, disabled by default.
+# Verify input variables. PIE_FLAGS do not need to be set and are disabled by default.
 if [ ! -n "${NUM_JOBS}" ] || [ ! -n "${LEVEL}" ] || [ ! -n "${CPU}" ] ||
    [ ! -n "${PREFIX}" ] || [ ! -n "${TOOLCHAIN_PREFIX}" ] || [ ! -n "${LIBVPX_TARGET}" ]; then
 
@@ -117,9 +116,9 @@ if [ ! -n "${NUM_JOBS}" ] || [ ! -n "${LEVEL}" ] || [ ! -n "${CPU}" ] ||
     exit 1
 fi
 
-# Determine the output directory. Put PIE executables in their own seperate path.
-# Also set whethere --enable-pic is passed to FFmpeg's configuration.
-if [[ $PIE_ENABLED ]]; then
+# Determine the output directory and put PIE executables in their own separate path.
+# Also set whether --enable-pic is passed to FFmpeg's configuration to generate PIE executables.
+if [[ $PIE_FLAGS ]]; then
     ffmpegOutputDir=${DIR_NDK}/bin/${CPU}/pie
     enablePic="--enable-pic"
 else
@@ -324,9 +323,9 @@ make clean \
 printf "    configuring\n"
 ./configure \
     --prefix=${DIR_SYSROOT} --arch=${CPU} --target-os=linux \
-    --extra-ldflags="-L${DIR_SYSROOT}/lib ${PIE_ENABLED}" \
-    --extra-cflags="-I${DIR_SYSROOT}/include ${PIE_ENABLED}" \
-    --extra-cxxflags="-I${DIR_SYSROOT}/include ${PIE_ENABLED}" \
+    --extra-ldflags="-L${DIR_SYSROOT}/lib ${PIE_FLAGS}" \
+    --extra-cflags="-I${DIR_SYSROOT}/include ${PIE_FLAGS}" \
+    --extra-cxxflags="-I${DIR_SYSROOT}/include ${PIE_FLAGS}" \
     --enable-cross-compile --cross-prefix=${PREFIX}- --sysroot=${DIR_SYSROOT} \
     --disable-shared --enable-static --enable-small \
     --disable-all --enable-ffmpeg \

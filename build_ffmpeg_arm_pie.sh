@@ -6,7 +6,6 @@ export CPU=arm
 export PREFIX=arm-linux-androideabi
 export TOOLCHAIN_PREFIX=${PREFIX}
 export LIBVPX_TARGET=armv7
-# This is a bit hacky. C'est le bash scripts.
-export PIE_ENABLED="-fPIE -pie"
+export PIE_FLAGS="-fPIE -pie"
 
 ./build_ffmpeg.sh $@

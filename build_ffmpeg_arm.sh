@@ -6,6 +6,6 @@ export CPU=arm
 export PREFIX=arm-linux-androideabi
 export TOOLCHAIN_PREFIX=${PREFIX}
 export LIBVPX_TARGET=armv7 
-export PIE_ENABLED=""
+export PIE_FLAGS=""
 
 ./build_ffmpeg.sh $@
