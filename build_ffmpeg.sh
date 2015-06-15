@@ -80,7 +80,7 @@ if [ "$1" = "--init" ]; then
         >> ${LOG_FILE} 2>&1
 
     printf "    downloading vpx\n"
-    (git clone --progress http://git.chromium.org/webm/libvpx.git libvpx) \
+    (git clone --progress http://chromium.googlesource.com/webm/libvpx.git libvpx) \
         >> ${LOG_FILE} 2>&1
 
     printf "    downloading ffmpeg\n"
