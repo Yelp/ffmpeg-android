@@ -32,22 +32,22 @@ if [ "$1" = "--init" ]; then
 
     printf "NDK\n"
 
-    if [ ! -f android-ndk32-r10-darwin-x86_64.tar.bz2 ]; then
-        printf "    downloading\n"
-        curl "http://dl.google.com/android/ndk/android-ndk32-r10-darwin-x86_64.tar.bz2" \
-            -o android-ndk32-r10-darwin-x86_64.tar.bz2 \
+    if [ ! -f android-ndk-r12b-darwin-x86_64.zip ]; then
+        printf "    downloading r12b for mac\n"
+        curl "https://dl.google.com/android/repository/android-ndk-r12b-darwin-x86_64.zip" \
+            -o android-ndk-r12b-darwin-x86_64.zip \
             >> ${LOG_FILE} 2>&1
     fi
 
-    printf "    extracting\n"
-    tar xvzf android-ndk32-r10-darwin-x86_64.tar.bz2 \
+    printf "    unzipping\n"
+    unzip android-ndk-r12b-darwin-x86_64.zip \
         >> ${LOG_FILE} 2>&1
 
     printf "    moving to ${DIR_NDK}\n"
     rm -rf ${DIR_NDK} || true
     mkdir -p ${DIR_NDK} \
         >> ${LOG_FILE} 2>&1
-    mv android-ndk-r10/* ${DIR_NDK} \
+    mv android-ndk-r12b/* ${DIR_NDK} \
         >> ${LOG_FILE} 2>&1
 
     printf "    done\n"
@@ -58,11 +58,11 @@ if [ "$1" = "--init" ]; then
     cd ${DIR_NDK}/sources \
         >> ${LOG_FILE} 2>&1
 
-    printf "    downloading yasm\n"
+    printf "    cloning yasm\n"
     git clone --progress git://github.com/yasm/yasm.git \
         >> ${LOG_FILE} 2>&1
 
-    printf "    downloading ogg\n"
+    printf "    cloning ogg\n"
     git clone --progress git://git.xiph.org/mirrors/ogg.git \
         >> ${LOG_FILE} 2>&1
 
@@ -79,11 +79,11 @@ if [ "$1" = "--init" ]; then
     mv libvorbis-1.3.4 libvorbis \
         >> ${LOG_FILE} 2>&1
 
-    printf "    downloading vpx\n"
-    (git clone --progress http://chromium.googlesource.com/webm/libvpx.git libvpx) \
+    printf "    cloning vpx\n"
+    (git clone --progress https://chromium.googlesource.com/webm/libvpx.git libvpx) \
         >> ${LOG_FILE} 2>&1
 
-    printf "    downloading ffmpeg\n"
+    printf "    cloning ffmpeg\n"
     (git clone --progress git://source.ffmpeg.org/ffmpeg.git ffmpeg) \
         >> ${LOG_FILE} 2>&1
 
@@ -131,7 +131,7 @@ DIR_SYSROOT=${DIR_NDK}/platforms/android-${LEVEL}/arch-${CPU}/usr
 
 if [ ! -d "${DIR_SYSROOT}/bin" ]; then
     printf "TOOLCHAIN\n"
-    TOOLCHAIN=${TOOLCHAIN_PREFIX}-4.8
+    TOOLCHAIN=${TOOLCHAIN_PREFIX}-4.9
 
     printf "    generating\n"
     ${DIR_NDK}/build/tools/make-standalone-toolchain.sh \
@@ -310,7 +310,7 @@ if [ "$1" = "--reset" ] || [ "$1" = "--init" ]; then
     printf "    resetting\n"
     git checkout -- . \
         >> ${LOG_FILE} 2>&1
-    git checkout release/2.4 \
+    git checkout release/3.0 \
         >> ${LOG_FILE} 2>&1
     git pull \
         >> ${LOG_FILE} 2>&1
