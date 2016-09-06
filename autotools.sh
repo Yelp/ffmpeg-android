@@ -1,3 +1,6 @@
+#!/bin/bash
+# Run this script to quickly install Autoconf, Automake & Libtool on Mac OSX.
+
 curl -OL http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz
 tar -xzf autoconf-2.69.tar.gz 
 cd autoconf-2.69

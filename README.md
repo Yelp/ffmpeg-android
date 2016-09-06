@@ -4,7 +4,7 @@ For more information about FFmpeg, see https://www.ffmpeg.org/download.html#get-
 
 ## How to to build
 
-* Install [autotools](http://www.jattcode.com/installing-autoconf-automake-libtool-on-mac-osx-mountain-lion/).
+* Install [autotools](http://www.jattcode.com/installing-autoconf-automake-libtool-on-mac-osx-mountain-lion/) (or just run ./autotools.sh).
 * Clone the repo.
 * Define where you want NDK installed. DONT use any symbolic links in `$DIR_NDK`.
 
