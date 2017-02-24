@@ -1,4 +1,7 @@
 ndk/
+autoconf-*
+*.tar.gz
+*.zip
 *.tar.bz2
 build_ffmpeg.log
 .DS_STORE
