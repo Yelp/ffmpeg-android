@@ -39,9 +39,11 @@ if [ "$1" = "--init" ]; then
             >> ${LOG_FILE} 2>&1
     fi
 
-    printf "    unzipping\n"
-    unzip android-ndk-r12b-darwin-x86_64.zip \
-        >> ${LOG_FILE} 2>&1
+    if [ ! -d android-ndk-r12b ]; then
+        printf "    unzipping\n"
+        unzip android-ndk-r12b-darwin-x86_64.zip \
+            >> ${LOG_FILE} 2>&1
+    fi
 
     printf "    moving to ${DIR_NDK}\n"
     rm -rf ${DIR_NDK} || true
@@ -328,7 +330,7 @@ printf "    configuring\n"
     --extra-cxxflags="-I${DIR_SYSROOT}/include ${PIE_FLAGS}" \
     --enable-cross-compile --cross-prefix=${PREFIX}- --sysroot=${DIR_SYSROOT} \
     --disable-shared --enable-static --enable-small \
-    --disable-all --enable-ffmpeg \
+    --disable-all --enable-ffmpeg --disable-asm \
     --enable-avcodec --enable-avformat --enable-avutil --enable-swresample --enable-avfilter --enable-swscale \
     --enable-filter=aresample --enable-filter=crop --enable-filter=scale --enable-filter=transpose \
     --enable-protocol=file \
